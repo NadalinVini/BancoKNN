@@ -15,23 +15,22 @@ namespace IrisArff
             //Caso de Erro vá em propriedades e mude para Copiar sempre (arquivo Iris.txt)
             string[] lines = System.IO.File.ReadAllLines("Iris.txt");
 
-            //Variaveis do tipo array
-            string[,] confusaoString = new string[3, 3];
-            Double[,] valores = new Double[150, 5];
-            int[,] confusao = new int[3, 3];
-
             //Utilizando metodo para buscar o inicio e o fim
             Metodos metodo = new Metodos();
-            
+
+            //Metodos que recuperam o inicio e o fim 
+            var inicio = metodo.Inicio(lines);
+            var fim = metodo.Fim(lines);
+
+            //Variaveis do tipo array
+            string[,] confusaoString = new string[3, 3];
+            Double[,] valores = new Double[fim-inicio, 5];
+            int[,] confusao = new int[3, 3];
+                       
             //Indices que vão ser usados para descobrir a posição dos valores
             var validador = 0;
             var mais = 0;
-                        
-            //Metodos que recuperam o inicio e o fim 
-             var inicio = metodo.Inicio(lines);
-             var fim = metodo.Fim(lines);
-
-            
+    
             //Convertendo os valores das minhas linhas em tipo Double
             for (int i = inicio; i < fim; i++)
             {
@@ -157,8 +156,8 @@ namespace IrisArff
             Double taxaErro = Convert.ToDouble(erros);
 
             //Calculando a porcentagem
-            taxaAcerto = (taxaAcerto / 150) * 100;
-            taxaErro = (taxaErro / 150) * 100;
+            taxaAcerto = (taxaAcerto / (fim -inicio)) * 100;
+            taxaErro = (taxaErro / (fim - inicio)) * 100;
 
             //Trazendo eles para inteiro novamente;
             acertos = Convert.ToInt32(taxaAcerto);
@@ -180,6 +179,17 @@ namespace IrisArff
             Console.WriteLine("Taxa de acerto = " + acertos + "%");
             Console.WriteLine("Taxa de erro = " + erros + "%");
             Console.WriteLine("");
+
+            //Adicionando uma nova iris
+            Console.WriteLine("Informe a nova iris no formato 0.0,0.0,0.0,0.0");
+            //Lendo a iris
+            string linhanova = Console.ReadLine();
+            //Pulando linha
+            Console.WriteLine("");
+
+            var iris = metodo.NovaIris(valores, linhanova);
+
+            Console.WriteLine("Sua iris é: " + iris);
 
             Console.ReadKey();
         }
