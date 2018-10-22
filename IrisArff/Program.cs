@@ -17,6 +17,8 @@ namespace IrisArff
 
             //Utilizando metodo para buscar o inicio e o fim
             Metodos metodo = new Metodos();
+           
+            List<KNN> listaKNN = new List<KNN>();
 
             //Metodos que recuperam o inicio e o fim 
             var inicio = metodo.Inicio(lines);
@@ -26,6 +28,7 @@ namespace IrisArff
             string[,] confusaoString = new string[3, 3];
             Double[,] valores = new Double[fim-inicio, 5];
             int[,] confusao = new int[3, 3];
+            Double[] arrayDistancia = new double[fim-inicio];
                        
             //Indices que vão ser usados para descobrir a posição dos valores
             var validador = 0;
@@ -57,13 +60,15 @@ namespace IrisArff
             var distancia = 0.0;
             var tipo = 0.0;            
             int acertos = 0;
-            int erros = 0;            
+            int erros = 0;
+
 
             //Primeiro for representa o P da operação, muda apenas quando o Q completa todos os elementos
             for (int i = inicio; i < fim; i++)
             {
                 menor = 100.0;
                 mais = 0;
+                listaKNN.Clear();                
 
                 //Elemento Q que percorre todas as linhas
                 for (int j = inicio; j < fim; j++)
@@ -79,15 +84,30 @@ namespace IrisArff
                         + Math.Pow((valores[validador, 3] - valores[mais, 3]), 2));
 
                         //Pega o menor valor de cada P por Q
-                        if (distancia <= menor)
-                        {
-                            tipo = valores[mais, 4];
-                            menor = distancia;
-                        }
+                        //if (distancia <= menor)
+                        //{
+                        //    tipo = valores[mais, 4];
+                        //    menor = distancia;
+                        //}
+                        KNN knn = new KNN();
+                        knn.Distancia = distancia;
+                        knn.Categoria = valores[validador, 4];
 
+                        listaKNN.Add(knn);
+
+                        var order = (from l in listaKNN
+                                    orderby l.Distancia ascending
+                                    select l).ToList();
+
+                        if(mais == 149)
+                        {
+
+                        }
                     }
                     mais++;
                 }
+
+                
 
                 //Caso P seja igual o menor valor de Q, +1 acerto
                 if (tipo.Equals(valores[validador, 4]))
