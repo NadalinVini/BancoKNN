@@ -18,7 +18,10 @@ namespace IrisArff
             Console.WriteLine("Digite o número de vizinhos mais proximos: ");
             string ler = Console.ReadLine();
             int k = Convert.ToInt32(ler);
-            
+            double[] empate1 = new double[k];
+            double[] empate2 = new double[k];
+            double[] empate3 = new double[k];
+
             //Utilizando metodo para buscar o inicio e o fim
             Metodos metodo = new Metodos();
 
@@ -89,7 +92,7 @@ namespace IrisArff
                 for (int j = inicio; j < fim; j++)
                 {
                     
-                    if (i != j || validador == 149)
+                    if (i != j || validador == (fim-inicio-1))
                     {
                         //Calculando a distancia
                         distancia = Math.Sqrt(
@@ -102,11 +105,7 @@ namespace IrisArff
                         knn.Distancia = distancia;
                         knn.Categoria = valores[mais, 4];
 
-                        listaKNN.Add(knn);
-                        if (mais == 149)
-                        {
-
-                        }
+                        listaKNN.Add(knn);                       
 
                         var order = (from l in listaKNN
                                      orderby l.Distancia ascending
@@ -123,6 +122,7 @@ namespace IrisArff
                                     if(um > dois && um > tres)
                                     {
                                         tipo = 1.0;
+
                                     }
                                     else if(dois> um && dois> tres )
                                     {
@@ -132,24 +132,92 @@ namespace IrisArff
                                     {
                                         tipo = 3.0;
                                     }
-                                    else
-                                    {
 
+                                    #region Empate
+                                    else if (dois > tres && dois == um)
+                                    {
+                                        if(empate2[0] > empate1[0])
+                                        {
+                                            tipo = 2.0;
+                                        }
+                                        else
+                                        {
+                                            tipo = 1.0;
+                                        }
                                     }
-                                    
+                                    else if (dois > um && dois == tres)
+                                    {
+                                        if (empate2[0] > empate3[0])
+                                        {
+                                            tipo = 2.0;
+                                        }
+                                        else
+                                        {
+                                            tipo = 3.0;
+                                        }
+                                    }
+                                    else if (tres > dois && tres == um)
+                                    {
+                                        if(empate3[0] > empate1[0])
+                                        {
+                                            tipo = 3.0;
+                                        }
+                                        else
+                                        {
+                                            tipo = 1.0;
+                                        }
+                                    }
+                                    else if(tres > um && tres == dois )
+                                    {
+                                        if(empate3[0] > empate2[0])
+                                        {
+                                            tipo = 3.0;
+                                        }
+                                        else
+                                        {
+                                            tipo = 2.0;
+                                        }
+                                    }
+                                    else if (um > tres && um == dois)
+                                    {
+                                        if (empate1[0] > empate2[0])
+                                        {
+                                            tipo = 1.0;
+                                        }
+                                        else
+                                        {
+                                            tipo = 2.0;
+                                        }
+                                    }
+                                    else if (um > dois && um == tres)
+                                    {
+                                        if (empate1[0] > empate3[0])
+                                        {
+                                            tipo = 1.0;
+                                        }
+                                        else
+                                        {
+                                            tipo = 3.0;
+                                        }
+                                    }
+                                    #endregion
+
                                     break;
                                 }
                                 if (x.Categoria.Equals(1))
                                 {
                                     um = um + 1;
+                                    empate1[p] = x.Distancia;
                                 }
                                 if (x.Categoria.Equals(2))
                                 {
                                     dois = dois + 1;
+                                    empate2[p] = x.Distancia;
                                 }
                                 if (x.Categoria.Equals(3))
                                 {
                                     tres = tres + 1;
+                                    empate3[p] = x.Distancia;
                                 }
                                 p++;
                             }                            
