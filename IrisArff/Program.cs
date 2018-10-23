@@ -15,9 +15,13 @@ namespace IrisArff
             //Caso de Erro vá em propriedades e mude para Copiar sempre (arquivo Iris.txt)
             string[] lines = System.IO.File.ReadAllLines("Iris.txt");
 
+            Console.WriteLine("Digite o número de vizinhos mais proximos: ");
+            string ler = Console.ReadLine();
+            int k = Convert.ToInt32(ler);
+            
             //Utilizando metodo para buscar o inicio e o fim
             Metodos metodo = new Metodos();
-           
+
             List<KNN> listaKNN = new List<KNN>();
 
             //Metodos que recuperam o inicio e o fim 
@@ -26,14 +30,15 @@ namespace IrisArff
 
             //Variaveis do tipo array
             string[,] confusaoString = new string[3, 3];
-            Double[,] valores = new Double[fim-inicio, 5];
+            Double[,] valores = new Double[fim - inicio, 5];
             int[,] confusao = new int[3, 3];
-            Double[] arrayDistancia = new double[fim-inicio];
-                       
+            Double[] arrayDistancia = new double[fim - inicio];
+
             //Indices que vão ser usados para descobrir a posição dos valores
             var validador = 0;
             var mais = 0;
-    
+            
+
             //Convertendo os valores das minhas linhas em tipo Double
             for (int i = inicio; i < fim; i++)
             {
@@ -54,27 +59,37 @@ namespace IrisArff
                 validador++;
             }
 
+            #region Variáveis
             //Variaveis Uteis
-            var menor = 0.0;
+            //var menor = 0.0;
             validador = 0;
             var distancia = 0.0;
-            var tipo = 0.0;            
+            var tipo = 0.0;
             int acertos = 0;
             int erros = 0;
-
+            var um = 0;
+            var dois = 0;
+            var tres = 0;
+            var p = 0;
+            #endregion
 
             //Primeiro for representa o P da operação, muda apenas quando o Q completa todos os elementos
             for (int i = inicio; i < fim; i++)
             {
-                menor = 100.0;
+                //menor = 100.0;
                 mais = 0;
-                listaKNN.Clear();                
+                listaKNN.Clear();
+                um = 0;
+                dois = 0;
+                tres = 0;
+                p = 0;
+                tipo = 0.0;   
 
                 //Elemento Q que percorre todas as linhas
                 for (int j = inicio; j < fim; j++)
-                {                 
-
-                    if (i != j)
+                {
+                    
+                    if (i != j || validador == 149)
                     {
                         //Calculando a distancia
                         distancia = Math.Sqrt(
@@ -83,38 +98,73 @@ namespace IrisArff
                         + Math.Pow((valores[validador, 2] - valores[mais, 2]), 2)
                         + Math.Pow((valores[validador, 3] - valores[mais, 3]), 2));
 
-                        //Pega o menor valor de cada P por Q
-                        //if (distancia <= menor)
-                        //{
-                        //    tipo = valores[mais, 4];
-                        //    menor = distancia;
-                        //}
                         KNN knn = new KNN();
                         knn.Distancia = distancia;
-                        knn.Categoria = valores[validador, 4];
+                        knn.Categoria = valores[mais, 4];
 
                         listaKNN.Add(knn);
-
-                        var order = (from l in listaKNN
-                                    orderby l.Distancia ascending
-                                    select l).ToList();
-
-                        if(mais == 149)
+                        if (mais == 149)
                         {
 
                         }
+
+                        var order = (from l in listaKNN
+                                     orderby l.Distancia ascending
+                                     select l).ToList();                        
+
+                       
+                        if (mais == (fim - inicio) - 1)
+                        {
+                            foreach (var x in order)
+                            {
+                                
+                                if(k == p)
+                                {
+                                    if(um > dois && um > tres)
+                                    {
+                                        tipo = 1.0;
+                                    }
+                                    else if(dois> um && dois> tres )
+                                    {
+                                        tipo = 2.0;
+                                    }
+                                    else if(tres > um && tres > dois)
+                                    {
+                                        tipo = 3.0;
+                                    }
+                                    else
+                                    {
+
+                                    }
+                                    
+                                    break;
+                                }
+                                if (x.Categoria.Equals(1))
+                                {
+                                    um = um + 1;
+                                }
+                                if (x.Categoria.Equals(2))
+                                {
+                                    dois = dois + 1;
+                                }
+                                if (x.Categoria.Equals(3))
+                                {
+                                    tres = tres + 1;
+                                }
+                                p++;
+                            }                            
+                        }
                     }
                     mais++;
+                    
                 }
-
-                
 
                 //Caso P seja igual o menor valor de Q, +1 acerto
                 if (tipo.Equals(valores[validador, 4]))
                 {
                     //Somando acertos
                     acertos = acertos + 1;
-
+                   
                     //Separando os valores para criar a matriz de confusão
                     if (tipo.Equals(1.0))
                     {
@@ -135,7 +185,6 @@ namespace IrisArff
                 //Caso o tipo do P não seja igual o menor valor de Q
                 else
                 {
-                    
                     erros = erros + 1;
 
                     //Separando os valores para criar a matriz de confusão
@@ -166,42 +215,42 @@ namespace IrisArff
                     {
                         confusao[2, 1] = confusao[2, 1] + 1;
                     }
-                }
-
-                validador++;
-            }
+                }             
+                validador++;                   
+            }            
 
             //Convertendo os acertos em double para calcular a porcentagem
             Double taxaAcerto = Convert.ToDouble(acertos);
             Double taxaErro = Convert.ToDouble(erros);
 
             //Calculando a porcentagem
-            taxaAcerto = (taxaAcerto / (fim -inicio)) * 100;
-            taxaErro = (taxaErro / (fim - inicio)) * 100;
+            taxaAcerto = (taxaAcerto / 149) * 100;
+            taxaErro = (taxaErro / 149) * 100;
 
             //Trazendo eles para inteiro novamente;
             acertos = Convert.ToInt32(taxaAcerto);
-            erros = Convert.ToInt32(taxaErro);
+            erros = 100 - acertos;
 
             //Imprimindo Matriz de confusão
-            Console.WriteLine("         Matriz de Confusao        ");
             Console.WriteLine("");
-            Console.WriteLine("a      b       c    <-- Classificação");
+            Console.WriteLine("1      2       3");
             Console.WriteLine("");
-            Console.WriteLine(confusao[0, 0] + "     " + confusao[0, 1] + "       " + confusao[0, 2] + "    a = Iris-setosa");
+            Console.WriteLine(confusao[0, 0] + "     " + confusao[0, 1] + "       " + confusao[0, 2] );
             Console.WriteLine("");
-            Console.WriteLine(confusao[1, 0] + "      " + confusao[1, 1] + "      " + confusao[1, 2] + "    b = Iris-versicolor");
+            Console.WriteLine(confusao[1, 0] + "      " + confusao[1, 1] + "      " + confusao[1, 2] );
             Console.WriteLine("");
-            Console.WriteLine(confusao[2, 0] + "      " + confusao[2, 1] + "      " + confusao[2, 2] + "    c = Iris-virginica");
+            Console.WriteLine(confusao[2, 0] + "      " + confusao[2, 1] + "      " + confusao[2, 2] );
             Console.WriteLine("");
-            Console.WriteLine("");
+            Console.WriteLine("Sendo 1 --> Iris-setosa");
+            Console.WriteLine("      2 --> Iris-Versicolor");
+            Console.WriteLine("      3 --> Iris-Virginica");
             Console.WriteLine("");
             Console.WriteLine("Taxa de acerto = " + acertos + "%");
             Console.WriteLine("Taxa de erro = " + erros + "%");
             Console.WriteLine("");
 
             //Adicionando uma nova iris
-            Console.WriteLine("Informe a nova iris no formato 0.0,0.0,0.0,0.0");
+            Console.WriteLine("Informe a nova iris no formato 0.0,0.0,0.0,0.0       Obs: K = 1;");
             //Lendo a iris
             string linhanova = Console.ReadLine();
             //Pulando linha
